@@ -17,9 +17,9 @@ import com.brashmonkey.spriter.XmlReader.*;
  * @author Trixt0r
  */
 public class SCMLReader {
-	
+
 	protected Data data;
-	
+
 	/**
 	 * Creates a new SCML reader and will parse all objects in the given stream.
 	 * @param stream the stream
@@ -27,7 +27,7 @@ public class SCMLReader {
 	public SCMLReader(InputStream stream){
 		this.data = this.load(stream);
 	}
-	
+
 	/**
 	 * Creates a new SCML reader and will parse the given xml string.
 	 * @param xml the xml string
@@ -35,7 +35,7 @@ public class SCMLReader {
 	public SCMLReader(String xml){
 		this.data = this.load(xml);
 	}
-	
+
 	/**
 	 * Parses the SCML object save in the given xml string and returns the build data object.
 	 * @param xml the xml string
@@ -45,10 +45,10 @@ public class SCMLReader {
 		XmlReader reader = new XmlReader();
 		return load(reader.parse(xml));
 	}
-	
+
 	/**
 	 * Parses the SCML objects saved in the given stream and returns the built data object.
-	 * @param stream the stream from the SCML file 
+	 * @param stream the stream from the SCML file
 	 * @return the built data
 	 */
 	protected Data load(InputStream stream){
@@ -90,7 +90,7 @@ public class SCMLReader {
 			data.addFolder(folder);
 		}
 	}
-	
+
 	/**
 	 * Iterates through the given files and adds them to the given {@link Folder} object.
 	 * @param files a list of files to load
@@ -102,7 +102,7 @@ public class SCMLReader {
 			File file = new File(f.getInt("id"), f.get("name"),
 					new Dimension(f.getInt("width", 0), f.getInt("height", 0)),
 					new Point(f.getFloat("pivot_x", 0f), f.getFloat("pivot_y", 1f)));
-			
+
 			folder.addFile(file);
 		}
 	}
@@ -125,7 +125,7 @@ public class SCMLReader {
 			loadAnimations(animations, entity);
 		}
 	}
-	
+
 	/**
 	 * Iterates through the given object infos and adds them to the given {@link Entity} object.
 	 * @param infos a list of infos to load
@@ -149,7 +149,7 @@ public class SCMLReader {
 			}
 		}
 	}
-	
+
 	/**
 	 * Iterates through the given character maps and adds them to the given {@link Entity} object.
 	 * @param maps a list of character maps to load
@@ -166,11 +166,11 @@ public class SCMLReader {
 				int folder = mapping.getInt("folder");
 				int file = mapping.getInt("file");
 				charMap.put(new FileReference(folder, file),
-						new FileReference(mapping.getInt("target_folder", folder), mapping.getInt("target_file", file)));
+						new FileReference(mapping.getInt("target_folder", -1), mapping.getInt("target_file", -1)));
 			}
 		}
 	}
-	
+
 	/**
 	 * Iterates through the given animations and adds them to the given {@link Entity} object.
 	 * @param animations a list of animations to load
@@ -183,7 +183,7 @@ public class SCMLReader {
 			Element mainline = a.getChildByName("mainline");
 			ArrayList<Element> mainlineKeys = mainline.getChildrenByName("key");
 			Animation animation = new Animation(new Mainline(mainlineKeys.size()),
-									  a.getInt("id"), a.get("name"), a.getInt("length"), 
+									  a.getInt("id"), a.get("name"), a.getInt("length"),
 									  a.getBoolean("looping", true),timelines.size());
 			entity.addAnimation(animation);
 			loadMainlineKeys(mainlineKeys, animation.mainline);
@@ -191,7 +191,7 @@ public class SCMLReader {
 			animation.prepare();
 		}
 	}
-	
+
 	/**
 	 * Iterates through the given mainline keys and adds them to the given {@link Mainline} object.
 	 * @param keys a list of mainline keys
@@ -211,7 +211,7 @@ public class SCMLReader {
 			loadRefs(objectRefs, boneRefs, key);
 		}
 	}
-	
+
 	/**
 	 * Iterates through the given bone and object references and adds them to the given {@link Mainline.Key} object.
 	 * @param objectRefs a list of object references
@@ -234,7 +234,7 @@ public class SCMLReader {
 		}
 		Arrays.sort(key.objectRefs);
 	}
-	
+
 	/**
 	 * Iterates through the given timelines and adds them to the given {@link Animation} object.
 	 * @param timelines a list of timelines
@@ -254,7 +254,7 @@ public class SCMLReader {
 			loadTimelineKeys(keys, timeline);
 		}
 	}
-	
+
 	/**
 	 * Iterates through the given timeline keys and adds them to the given {@link Timeline} object.
 	 * @param keys a list if timeline keys
@@ -269,7 +269,7 @@ public class SCMLReader {
 			Timeline.Key key = new Timeline.Key(k.getInt("id"), k.getInt("time", 0), k.getInt("spin", 1), curve);
 			Element obj = k.getChildByName("bone");
 			if(obj == null) obj = k.getChildByName("object");
-			
+
 			Point position = new Point(obj.getFloat("x", 0f), obj.getFloat("y", 0f));
 			Point scale = new Point(obj.getFloat("scale_x", 1f), obj.getFloat("scale_y", 1f));
 			Point pivot = new Point(obj.getFloat("pivot_x", 0f), obj.getFloat("pivot_y", (timeline.objectInfo.type == ObjectType.Bone)? .5f:1f));
@@ -292,7 +292,7 @@ public class SCMLReader {
 			timeline.addKey(key);
 		}
 	}
-	
+
 	/**
 	 * Returns the loaded SCML data.
 	 * @return the SCML data.
@@ -300,6 +300,6 @@ public class SCMLReader {
 	public Data getData(){
 		return data;
 	}
-	
+
 }
 

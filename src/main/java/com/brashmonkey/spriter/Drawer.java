@@ -1,12 +1,12 @@
 package com.brashmonkey.spriter;
 
-import java.util.Iterator;
-
 import com.brashmonkey.spriter.Entity.CharacterMap;
 import com.brashmonkey.spriter.Entity.ObjectInfo;
 import com.brashmonkey.spriter.Entity.ObjectType;
 import com.brashmonkey.spriter.Timeline.Key.Bone;
 import com.brashmonkey.spriter.Timeline.Key.Object;
+
+import java.util.Iterator;
 
 /**
  * A Drawer is responsible for drawing a {@link Player}.
@@ -20,13 +20,13 @@ import com.brashmonkey.spriter.Timeline.Key.Object;
  * @param <R> The backend specific resource. In general such a resource is called "sprite", "texture" or "image".
  */
 public abstract class Drawer<R> {
-	
+
 	/**
 	 * The radius of a point for debug drawing purposes.
 	 */
 	public float pointRadius = 5f;
 	protected Loader<R> loader;
-	
+
 	/**
 	 * Creates a new drawer based on the given loader.
 	 * @param loader the loader containing resources
@@ -34,7 +34,7 @@ public abstract class Drawer<R> {
 	public Drawer(Loader<R> loader){
 		this.loader = loader;
 	}
-	
+
 	/**
 	 * Sets the loader of this drawer.
 	 * @param loader the loader containing resources
@@ -44,7 +44,7 @@ public abstract class Drawer<R> {
 		if(loader == null) throw new SpriterException("The loader instance can not be null!");
 		this.loader = loader;
 	}
-	
+
 	/**
 	 * Draws the bones of the given player composed of lines.
 	 * @param player the player to draw
@@ -70,7 +70,7 @@ public abstract class Drawer<R> {
 			drawBone(bone, size);
 		}*/
 	}
-	
+
 	/**
 	 * Draws the given bone composed of lines with the given size.
 	 * @param bone the bone to draw
@@ -82,7 +82,7 @@ public abstract class Drawer<R> {
 		float yy = bone.position.y+(float)Math.sin(Math.toRadians(bone.angle))*size.height;
 		float x2 = (float)Math.cos(Math.toRadians(bone.angle+90))*halfHeight*bone.scale.y;
 		float y2 = (float)Math.sin(Math.toRadians(bone.angle+90))*halfHeight*bone.scale.y;
-		
+
 		float targetX = bone.position.x+(float)Math.cos(Math.toRadians(bone.angle))*size.width*bone.scale.x,
 				targetY = bone.position.y+(float)Math.sin(Math.toRadians(bone.angle))*size.width*bone.scale.x;
 		float upperPointX = xx+x2, upperPointY = yy+y2;
@@ -94,7 +94,7 @@ public abstract class Drawer<R> {
 		this.line(lowerPointX, lowerPointY, targetX, targetY);
 		this.line(bone.position.x, bone.position.y, targetX, targetY);
 	}
-	
+
 	/**
 	 * Draws the boxes of the player.
 	 * @param player the player to draw the boxes from
@@ -105,7 +105,7 @@ public abstract class Drawer<R> {
 		this.drawObjectBoxes(player);
 		this.drawPoints(player);
 	}
-	
+
 	/**
 	 * Draws the boxes of all bones of the given player.
 	 * @param player the player to draw the bone boxes of
@@ -113,7 +113,7 @@ public abstract class Drawer<R> {
 	public void drawBoneBoxes(Player player){
 		drawBoneBoxes(player, player.boneIterator());
 	}
-	
+
 	/**
 	 * Draws the boxes of all bones of the given player based on the given iterator.
 	 * @param player the player to draw the bone boxes of
@@ -125,7 +125,7 @@ public abstract class Drawer<R> {
 			this.drawBox(player.getBox(bone));
 		}
 	}
-	
+
 	/**
 	 * Draws the boxes of the player objects, i.e. sprites and objects.
 	 * @param player the player to draw the object boxes of
@@ -133,7 +133,7 @@ public abstract class Drawer<R> {
 	public void drawObjectBoxes(Player player){
 		drawObjectBoxes(player, player.objectIterator());
 	}
-	
+
 	/**
 	 * Draws the boxes of sprites and boxes of the given player based on the given iterator.
 	 * @param player player the player to draw the object boxes of
@@ -145,7 +145,7 @@ public abstract class Drawer<R> {
 			this.drawBox(player.getBox(bone));
 		}
 	}
-	
+
 	/**
 	 * Draws all points of the given player.
 	 * @param player the player to draw the points of.
@@ -153,7 +153,7 @@ public abstract class Drawer<R> {
 	public void drawPoints(Player player){
 		drawPoints(player, player.objectIterator());
 	}
-	
+
 	/**
 	 * Draws the points of the given player based on the given iterator.
 	 * @param player player the player to draw the points of
@@ -170,7 +170,7 @@ public abstract class Drawer<R> {
 			}
 		}
 	}
-	
+
 	/**
 	 * Draws the given player with its current character map.
 	 * @param player the player to draw
@@ -178,18 +178,18 @@ public abstract class Drawer<R> {
 	public void draw(Player player){
 		this.draw(player, player.characterMaps);
 	}
-	
+
 	/**
-	 * Draws the given player with the given character map. 
+	 * Draws the given player with the given character map.
 	 * @param player the player to draw
 	 * @param map the character map to draw
 	 */
 	public void draw(Player player, CharacterMap[] maps){
 		this.draw(player.objectIterator(), maps);
 	}
-	
+
 	/**
-	 * Draws the objects the given iterator is providing with the given character map. 
+	 * Draws the objects the given iterator is providing with the given character map.
 	 * @param it the iterator iterating over the objects to draw
 	 * @param map the character map to draw
 	 */
@@ -198,15 +198,17 @@ public abstract class Drawer<R> {
 			Timeline.Key.Object object = it.next();
 			if(object.ref.hasFile()){
 				if(maps != null){
-					for(CharacterMap map: maps)
-						if(map != null)
-							object.ref.set(map.get(object.ref));
+					for(CharacterMap map: maps) {
+						if (map != null && map.containsKey(object.ref)) {
+                            object.ref.set(map.get(object.ref));
+						}
+					}
 				}
 				this.draw(object);
 			}
 		}
 	}
-	
+
 	/**
 	 * Draws the given box composed of lines.
 	 * @param box the box to draw
@@ -217,11 +219,11 @@ public abstract class Drawer<R> {
 		this.line(box.points[3].x, box.points[3].y, box.points[2].x, box.points[2].y);
 		this.line(box.points[2].x, box.points[2].y, box.points[0].x, box.points[0].y);
 	}
-	
+
 	public void drawRectangle(Rectangle rect){
 		this.rectangle(rect.left, rect.bottom, rect.size.width, rect.size.height);
 	}
-	
+
 	/**
 	 * Sets the color for drawing lines, rectangles and circles.
 	 * @param r the red value between 0.0 - 1.0
@@ -230,7 +232,7 @@ public abstract class Drawer<R> {
 	 * @param a the alpha value between 0.0 - 1.0
 	 */
 	public abstract void setColor(float r, float g, float b, float a);
-	
+
 	/**
 	 * Draws a line from (x1, y1) to (x2, y2).
 	 * @param x1
@@ -239,7 +241,7 @@ public abstract class Drawer<R> {
 	 * @param y2
 	 */
 	public abstract void line(float x1, float y1, float x2, float y2);
-	
+
 	/**
 	 * Draws a rectangle with origin at (x, y) and the given size.
 	 * @param x the x coordinate
@@ -248,7 +250,7 @@ public abstract class Drawer<R> {
 	 * @param height the height of the size
 	 */
 	public abstract void rectangle(float x, float y, float width, float height);
-	
+
 	/**
 	 * Draws a circle at (x, y) with the given radius.
 	 * @param x the x coordinate
@@ -256,7 +258,7 @@ public abstract class Drawer<R> {
 	 * @param radius the radius of the circle
 	 */
 	public abstract void circle(float x, float y, float radius);
-	
+
 	/**
 	 * Draws the given object with its current resource.
 	 * @param object the object to draw.
